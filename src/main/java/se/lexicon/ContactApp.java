@@ -1,6 +1,8 @@
 package se.lexicon;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class ContactApp {
@@ -87,7 +89,14 @@ public class ContactApp {
 			System.out.println("Your registry is empty.");
 			return;
 		}
-		System.out.println("\n--- All Registered Contacts ---");
+		// Sorts the list ignoring uppercase/lowercase differences
+		Collections.sort(personList, new Comparator<Person>() {
+			@Override
+			public int compare(Person p1, Person p2) {
+				return p1.firstName.compareToIgnoreCase(p2.firstName);
+			}
+		});
+		System.out.println("\n--- All Registered Contacts (A-Z by First Name) ---");
 		for (int i = 0; i < personList.size(); i++) {
 			System.out.println((i + 1) + ". " + personList.get(i));
 		}
