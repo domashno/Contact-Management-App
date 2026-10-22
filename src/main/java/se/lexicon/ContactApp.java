@@ -1,5 +1,7 @@
 package se.lexicon;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,7 +10,9 @@ import java.util.Scanner;
 public class ContactApp {
 	static PersonManager manager = new PersonManager();
 	static Scanner scanner = new Scanner(System.in);
+	static final String FILE_NAME = "contacts.csv";
 	public static void main(String[] args) {
+		initializeStorage();
 		System.out.println(("Welcome!"));
 		boolean running = true;
 		while (running) {
@@ -38,6 +42,7 @@ public class ContactApp {
 					deletePersonByEmail();
 					break;
 				case 5:
+					saveStorageAndExit();
 					running = false;
 					System.out.println("Goodbye!");
 					break;
@@ -46,6 +51,27 @@ public class ContactApp {
 			}
 		}
 	scanner.close();
+	}
+	static void initializeStorage() {
+		File file = new File(FILE_NAME);
+		if (file.exists()) {
+			try {
+				manager.loadFromCSV(FILE_NAME);
+				System.out.println("[System] Successfully loaded registered contacts from file storage registry.");
+			} catch (IOException e) {
+				System.out.println("[Warning] Failed loading local text file data: " + e.getMessage());
+			}
+		} else {
+			System.out.println("[System] Local contacts file path not found. Starting with a fresh empty list.");
+		}
+	}
+	static void saveStorageAndExit() {
+		try {
+			manager.saveToCSV(FILE_NAME);
+			System.out.println("[System] All changes written securely to '" + FILE_NAME + "'.");
+		} catch (IOException e) {
+			System.out.println("[Error] Could not save registry out to disk: " + e.getMessage());
+		}
 	}
 	static int getValidChoice() {
 		while (!scanner.hasNextInt()) {
