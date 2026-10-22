@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.Scanner;
 
 public class ContactApp {
-	static ArrayList<Person> personList = new ArrayList<>();
+	static PersonManager manager = new PersonManager();
 	static Scanner scanner = new Scanner(System.in);
 	public static void main(String[] args) {
 		System.out.println(("Welcome!"));
@@ -53,7 +53,7 @@ public class ContactApp {
 			scanner.next();
 		}
 		int choice = scanner.nextInt();
-		scanner.nextLine(); // Clear text buffer
+		scanner.nextLine();
 		return choice;
 	}
 	static void addPerson() {
@@ -67,71 +67,42 @@ public class ContactApp {
 		String address = scanner.nextLine();
 		System.out.print("Enter Email Address: ");
 		String email = scanner.nextLine();
-		if (isEmailDuplicate(email)) {
-			System.out.println("Error: A user with the email '" + email + "' already exists. Registration canceled.");
+
+		if (manager.isEmailDuplicate(email)) {
+			System.out.println("Error: A contact with that email already exists!");
 			return;
 		}
 
 		Person newPerson = new Person(firstName, lastname, tel, address, email);
-		personList.add(newPerson);
-		System.out.println("Person added successfully!");
-	}
-	static boolean isEmailDuplicate(String emailToTest) {
-		for (Person p : personList) {
-			if (p.email.equalsIgnoreCase(emailToTest)) {
-				return true;
-			}
-		}
-		return false;
+		manager.addPerson(newPerson);
+		System.out.println("Contact added successfully!");
 	}
 	static void viewPeople() {
-		if (personList.isEmpty()) {
-			System.out.println("Your registry is empty.");
+		if (manager.personList.isEmpty()) {
+			System.out.println("Your contact list is empty.");
 			return;
 		}
-		// Sorts the list ignoring uppercase/lowercase differences
-		Collections.sort(personList, new Comparator<Person>() {
-			@Override
-			public int compare(Person p1, Person p2) {
-				return p1.firstName.compareToIgnoreCase(p2.firstName);
-			}
-		});
-		System.out.println("\n--- All Registered Contacts (A-Z by First Name) ---");
-		for (int i = 0; i < personList.size(); i++) {
-			System.out.println((i + 1) + ". " + personList.get(i));
+		manager.sortPeopleByFirstName();
+		System.out.println("\n--- All Registered contacts (Sorted A-Z) ---");
+		for (int i = 0; i < manager.personList.size(); i++) {
+			System.out.println((i + 1) + ". " + manager.personList.get(i));
 		}
 	}
 	static void searchPersonByEmail() {
 		System.out.print("Enter the email address to search for: ");
 		String searchEmail = scanner.nextLine();
-		boolean found = false;
-
-		for (Person p : personList) {
-			if (p.email.equalsIgnoreCase(searchEmail)) {
-				System.out.println("Found: " + p);
-				found = true;
-			}
-		}
-		if (!found) {
+		Person p = manager.searchPersonByEmail(searchEmail);
+		if (p != null) {
+			System.out.println("Found: " + p);
+		} else {
 			System.out.println("No one found matching email '" + searchEmail + "'.");
 		}
 	}
 	static void deletePersonByEmail() {
 		System.out.print("Enter the exact email of the contact to delete: ");
 		String targetEmail = scanner.nextLine();
-		Person toRemove = null;
-
-		for (Person p : personList) {
-			// Evaluates using the unique email identity field
-			if (p.email.equalsIgnoreCase(targetEmail)) {
-				toRemove = p;
-				break;
-			}
-		}
-
-		if (toRemove != null) {
-			personList.remove(toRemove);
-			System.out.println("Contct with email '" + targetEmail + "' successfully removed.");
+		if (manager.deletePersonByEmail(targetEmail)) {
+			System.out.println("Contact successfully removed.");
 		} else {
 			System.out.println("Contact not found. No deletions made.");
 		}
