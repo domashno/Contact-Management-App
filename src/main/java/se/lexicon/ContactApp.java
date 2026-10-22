@@ -65,10 +65,22 @@ public class ContactApp {
 		String address = scanner.nextLine();
 		System.out.print("Enter Email Address: ");
 		String email = scanner.nextLine();
+		if (isEmailDuplicate(email)) {
+			System.out.println("Error: A user with the email '" + email + "' already exists. Registration canceled.");
+			return;
+		}
 
 		Person newPerson = new Person(firstName, lastname, tel, address, email);
 		personList.add(newPerson);
 		System.out.println("Person added successfully!");
+	}
+	static boolean isEmailDuplicate(String emailToTest) {
+		for (Person p : personList) {
+			if (p.email.equalsIgnoreCase(emailToTest)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	static void viewPeople() {
 		if (personList.isEmpty()) {
